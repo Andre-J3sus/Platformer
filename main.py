@@ -36,7 +36,7 @@ class Player:
         self.dx = 8
         self.vel_y = 0  # Jump constant
         self.isJump = False  # True when starts a jump
-        self.jumpCount = 2  # Max of jumps is 2 (double jump)
+        self.jumpCount = 1  # Max of jumps is 1 (single jump)
         self.dir = 1  # 1 when looking to the right; -1 when looking to the left
 
     def draw(self):
@@ -106,7 +106,7 @@ class Player:
                     self.vel_y = 0
                 elif self.vel_y >= 0:  # Bottom collision if it's falling
                     dy = tile.rect.top - self.y
-                    self.jumpCount = 2
+                    self.jumpCount = 1
 
         # Collision with the "roof"
         if self.y - self.height + dy < 0:
@@ -155,6 +155,8 @@ def get_tiles_from_map(map1):
                 tiles.append(Tile(col * TILE_SIDE, line * TILE_SIDE, "dirt"))
             if lines[line][col] == "F":
                 tiles.append(Tile(col * TILE_SIDE, line * TILE_SIDE, "platform"))
+            if lines[line][col] == "L":
+                tiles.append(Tile(col * TILE_SIDE, line * TILE_SIDE, "lava"))
 
     return tiles
 
