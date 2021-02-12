@@ -17,7 +17,7 @@ D  G   GGDDDGG B DDDD                  D
 DGGDGGGDDD DDDGGGD                     D
 DDDD     D   DDDD                      D
 DD             D         B   GGG      GD
-D                     GGGGGGGDDDGG   GDD
+D                     GGGGGGGDDDGG H GDD
 D  GG               GGDDD DDD DDDDGGGDDD
 D  DDG  GG             D    D  DD  DDDDD
 DGGDDDGGDDG                     D   DD D
