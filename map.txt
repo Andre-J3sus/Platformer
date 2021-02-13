@@ -1,9 +1,9 @@
 DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
 D                                      D
-D                                      D
-D    GGG   GGGG                 BGGG   D
+D                                    W D
+D    GGG B GGGG                  GGG   D
 D     DDGGGD  DGGGGG        GGGGGDDDGGGD
-D                  DGG   GGGDDDDDD DDDDD
+D                  DGG B GGGDDDDDD DDDDD
 DG                   DGGGDD         DDDD
 DDGG                                 DDD
 DDDD   F   F  GGG                     DD
@@ -11,7 +11,7 @@ DDDDLLLLLLLLLLDDDG                     D
 DDDDLLDDDDDDDDD                        D
 DDDDDDD                GGG             D
 DD                   GGDDDGG           D
-D        GGG        GDDD DDDGGG        D
+D  H     GGG        GDDD DDDGGG        D
 D        DDD     GGGDD D    DDDGG      D
 D  G   GGDDDGG B DDDD                  D
 DGGDGGGDDD DDDGGGD                     D
@@ -36,5 +36,5 @@ D      GG              DD             DD
 D    GGDD      GGGG    D               D
 D   GDDDDG  B GDDDDG         GG        D
 DGGGDDDDDDGGGGDDDDDDG     GGGDDGGG     D
-DDDDDDDDDDDDDDDDDDDDDGGGGGDDDDDDDDGG   D
+DDDDDDDDDDDDDDDDDDDDDGGGGGDDDDDDDDGG H D
 DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDGGGD

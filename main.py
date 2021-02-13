@@ -1,12 +1,14 @@
 import pygame
 
 pygame.init()
-pygame.display.set_caption('Attack in the Garden - by Jesus')
 
+# Game constants:
 SIZE = WIDTH, HEIGHT = 1000, 1000  # Window size
 ARENA = pygame.display.set_mode(SIZE)
 TILE_SIDE = 25
 starting_pos = TILE_SIDE * 2, HEIGHT - TILE_SIDE
+MENU = True
+WIN = False
 FPS = 45
 clock = pygame.time.Clock()
 font = pygame.font.Font('freesansbold.ttf', 28)
@@ -21,12 +23,16 @@ bg_img = pygame.image.load("sprites/bg.jpg").convert_alpha()
 jelly_img = pygame.image.load("sprites/jelly_enemy_left.png").convert_alpha()
 ghost_img = pygame.image.load("sprites/ghost.png").convert_alpha()
 play_button_img = pygame.image.load("sprites/play.PNG").convert_alpha()
+exit_button_img = pygame.image.load("sprites/exit.PNG").convert_alpha()
 game_name_img = pygame.image.load("sprites/name.png").convert_alpha()
 grass_img = pygame.image.load("sprites/grass.png").convert_alpha()
 dirt_img = pygame.image.load("sprites/dirt.png").convert_alpha()
 platform_img = pygame.image.load("sprites/platform.png").convert_alpha()
 lava_img = pygame.image.load("sprites/lava.png").convert_alpha()
+door_img = pygame.image.load("sprites/door.png").convert_alpha()
 
+# Window caption and icon
+pygame.display.set_caption('Attack in the Garden - by Jesus')
 pygame.display.set_icon(jelly_img)
 
 
@@ -75,6 +81,7 @@ class Player:
         ARENA.blit(self.img, (self.x, self.y - self.height, self.width, self.height))
 
     def move(self, tiles, entities):
+        global WIN, MENU
         dx = 0
         dy = 0
         if self.img == ghost_img:  # When the player is dead
@@ -153,7 +160,11 @@ class Player:
                             self.x, self.y = starting_pos[0], starting_pos[1]
                     elif entity.type == "heart":
                         entities.remove(entity)
-                        self.health += 1
+                        self.health += entity.health
+                        entity.health -= 1
+                    elif entity.type == "door":
+                        WIN = True
+                        MENU = True
 
                 # BOTTOM COLLISION
                 if enemy_rect.colliderect(pygame.Rect(self.x, self.y - self.height + dy, self.width, self.height)):
@@ -167,8 +178,11 @@ class Player:
                         elif entity.type == "heart":
                             self.health += 1
                             entity.health -= 1
+                        elif entity.type == "door":
+                            WIN = True
+                            MENU = True
 
-            # Collision with the "roof"
+                            # Collision with the "roof"
             if self.y - self.height + dy < 0:
                 dy = 0 - self.y + self.height
 
@@ -196,8 +210,7 @@ class Tile:
         self.height = self.img.get_height()
         self.rect = pygame.Rect(self.x, self.y, TILE_SIDE, TILE_SIDE)
 
-    def draw_tile(self):
-        ARENA.blit(self.img, (self.x, self.y, self.width, self.height))
+    def draw_tile(self): ARENA.blit(self.img, (self.x, self.y, self.width, self.height))
 
 
 class Entity:
@@ -207,8 +220,13 @@ class Entity:
             img = jelly_img
         elif type_of_entity == "heart":
             img = heart_img
-        self.img_left = pygame.transform.scale(img, (28, 24))
-        self.img_right = pygame.transform.flip(self.img_left, True, False).convert_alpha()
+        elif type_of_entity == "door":
+            img = door_img
+        if img != door_img:
+            self.img_left = pygame.transform.scale(img, (28, 24))
+            self.img_right = pygame.transform.flip(self.img_left, True, False).convert_alpha()
+        else:  # If it's a door
+            self.img_left = self.img_right = img
         self.rect = self.img_right.get_rect()
         self.x = x
         self.y = y
@@ -226,7 +244,10 @@ class Entity:
         else:
             img = self.img_left
 
-        ARENA.blit(img, (self.x, self.y + 4))
+        if self.type == "door":
+            ARENA.blit(img, (self.x, self.y - 5))
+        else:
+            ARENA.blit(img, (self.x, self.y + 4))
 
     def move(self, tiles):
         dx = 0
@@ -281,47 +302,58 @@ class Button:
 def check_button_click(button):
     pos = pygame.mouse.get_pos()
     if button.rect.collidepoint(pos):
-        return False  # Menu state becomes false
-    else:
         return True
+    else:
+        return False
 
 
-def draw_game(player, tiles, entities, buttons, menu_state):
+def draw_game(player, tiles, entities, buttons):
     ARENA.blit(bg_img, (0, 0))
-    if menu_state:
+    if MENU:
         for button in buttons:
             button.draw()
         ARENA.blit(game_name_img, (WIDTH/2 - game_name_img.get_width()/2, HEIGHT / 6))
+
+        if WIN:
+            win_message = font.render(f'YOU WIN THE GAME! TOTAL OF XP: {player.xp}', True, BLACK)
+            ARENA.blit(win_message, (WIDTH // 5, HEIGHT // 2))
+
     else:
         player.draw()
 
         for tile in tiles:
             tile.draw_tile()
 
-        for enemy in entities:
-            enemy.draw()
+        for entity in entities:
+            entity.draw()
 
         heart = pygame.transform.scale(heart_img, (31, 30))
+
         for life in range(player.health):
             ARENA.blit(heart, (TILE_SIDE + life * (heart.get_width() + 5), 950))
 
         text = font.render(f'XP: {player.xp}', True, WHITE)
-        ARENA.blit(text, (2 * TILE_SIDE + 3 * (heart.get_width() + 5), 950))
+        ARENA.blit(text, (2 * TILE_SIDE + 10 * (heart.get_width() + 5), 950))
 
     pygame.display.update()
 
 
-def update_game(player, tiles, entities, menu_state):
-    if not menu_state:
+def update_game(player, tiles, entities):
+    global MENU
+    if not MENU:
         player.move(tiles, entities)
         if player.health <= 0:
             player.img = ghost_img
 
-        for enemy in entities:
-            if enemy.type != "heart":
-                enemy.move(tiles)
-            if enemy.health <= 0:
-                entities.remove(enemy)
+            # When the player ghost leaves the screen -> back to the menu
+            if player.y + player.height < 0:
+                MENU = True
+
+        for entity in entities:
+            if entity.type == "jelly":
+                entity.move(tiles)
+            if entity.health <= 0:
+                entities.remove(entity)
 
 
 def get_map_from_file(map1):
@@ -344,40 +376,43 @@ def get_map_from_file(map1):
                 entities.append(Entity(col * TILE_SIDE, line * TILE_SIDE, 1, "jelly"))
             if lines[line][col] == "H":
                 entities.append(Entity(col * TILE_SIDE, line * TILE_SIDE, 1, "heart"))
+            if lines[line][col] == "W":
+                entities.append(Entity(col * TILE_SIDE, line * TILE_SIDE, 10000, "door"))
 
     return tiles, entities
 
 
 def starting_game():
+    global WIN
+    WIN = False
     return Player(starting_pos[0], starting_pos[1]), get_map_from_file("map.txt")[0], get_map_from_file("map.txt")[1]
 
 
 def main():
+    global MENU
     running = True
 
     game = player, tiles, entities = starting_game()
-    buttons = [Button(WIDTH // 2, HEIGHT // 2, play_button_img)]
-
-    menu_state = True
+    buttons = [Button(WIDTH // 4, 2*HEIGHT // 3, play_button_img), Button(3*WIDTH // 4, 2*HEIGHT // 3, exit_button_img)]
 
     while running:
         clock.tick(FPS)
 
-        update_game(player, tiles, entities, menu_state)
+        update_game(player, tiles, entities)
 
-        # When the player ghost leaves the screen -> back to the menu
-        if not menu_state and player.img == ghost_img and player.y + player.height < 0:
-            menu_state = True
-
-        draw_game(player, tiles, entities, buttons, menu_state)
+        draw_game(player, tiles, entities, buttons)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif menu_state and event.type == pygame.MOUSEBUTTONDOWN:
-                menu_state = check_button_click(buttons[0])
-                if not menu_state and game != starting_game():
-                    game = player, tiles, entities = starting_game()  # Restart the Game
+            elif MENU and event.type == pygame.MOUSEBUTTONDOWN:
+                if check_button_click(buttons[1]):  # Click the EXIT button
+                    running = False
+                else:
+                    if check_button_click(buttons[0]):  # Click the PLAY button
+                        MENU = False
+                    if not MENU and game != starting_game():
+                        game = player, tiles, entities = starting_game()  # Restart the Game
 
     pygame.quit()
 
